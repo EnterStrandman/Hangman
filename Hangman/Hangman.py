@@ -5,13 +5,12 @@ Started: 3/19/2019
 Last Edited 3/19/2019
 
 Ideas:
-    PVP and CPU mode
-    Allow for multiple plays and keep score
-    Add a text file of words and allow the user to play against a CPU with different categories
+    keep score
     Create GUI
 """
 
 import os
+import random
 
 def playGame(chars):
     currentState = []
@@ -20,8 +19,11 @@ def playGame(chars):
     play = True
     setup = 0
 
-    while setup < len(word):
-        currentState.append("_")
+    while setup < len(chars):
+        if chars[setup] == " ":
+            currentState.append(" ")
+        else:
+            currentState.append("_")
         setup = setup + 1
     
     while play:
@@ -50,26 +52,32 @@ def playGame(chars):
             print("GAME OVER")
             k=0
             result = True
-            while k < len(currentState):
+            while k < len(currentState) and result:
                 if currentState[k] == "_":
                     print("You Lose.")
-                    print("The word/phrase was.... " + word)
+                    print("The word/phrase was.... ")
+                    print(''.join(chars))
+                    print()
                     result = False
                 k = k + 1
             if result == True:
                 print("YOU WIN!")
+                print()
             play = False
 
-def printCategories():
-    categories = [x[0] for x in os.walk("Categories List")]
-    count = 1
-    while count <= len(categories):
-        print(count,':'.join(categories))
-        count = count + 1
+def getCategories():
+    categories = []
+    for dirName, subdirList, fileList in os.walk('Categories List'):
+        for fname in fileList:
+            categories.append(os.path.splitext(fname)[0])
+    return categories
 
+        
+"""
 
+MAIN IS BELOW
 
-
+"""
 play = True
 
 while play:
@@ -84,8 +92,21 @@ while play:
         chars = list(word)
         playGame(chars)
     elif mode == "2":
-        printCategories()
+        categoryList = getCategories()
+        numCat = 1
+        while numCat <= len(categoryList): 
+            print(str(numCat),''.join(categoryList[numCat-1]))
+            numCat = numCat + 1
         category = input("Choose a category:")
+
+        if os.path.exists("Categories List/"+category+".txt"):
+            file = open("Categories List/"+category+".txt")
+            choiceFile = file.read().split(',')
+            randomSelect = random.randint(0,len(choiceFile)-1)
+            chars = list(choiceFile[randomSelect])
+            playGame(chars)
+        else:
+            print("Please type the file name exactly as in appears in the list.")
     else:
         print("Invalid Input")
     
